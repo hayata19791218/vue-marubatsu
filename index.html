@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+        <title>◯xゲーム練習用</title>
+    </head>
+    <body>
+        <div id="app">   
+            <table border="1">
+                <tr 
+                    v-for="(row,rowIndex) in states"
+                >
+                    <td 
+                        v-for="(column,columnIndex) in row"
+                        @click="onSelect(rowIndex,columnIndex)"
+                    >
+                        <div 
+                            class="maru"
+                            v-if="column == 1"
+                        >◯</div>
+                        <div 
+                            class="batsu"
+                            v-if="column == 2"
+                        >x</div>
+                    </td>
+                </tr>
+            </table>
+            <p 
+                class="player1"
+                v-if="playerId == 1"
+            >プレイヤー1さんの番です</p>
+            <p 
+                class="player2"
+                v-if="playerId == 2"
+            >プレイヤー2さんの番です</p>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.min.js"></script>
+        <script>
+            var app = new Vue({
+                el: '#app',
+                data:{
+                    states:[
+                        [-1,-1,-1],
+                        [-1,-1,-1],
+                        [-1,-1,-1],
+                    ],
+                    playerId:1
+                },
+                methods:{
+                    onSelect(rowIndex,columnIndex){
+                        if(this.states[rowIndex][columnIndex] != -1){
+                            alert("そのマスは選択されています");
+                        }else{
+                            let states = JSON.parse(JSON.stringify(this.states));
+                            states[rowIndex][columnIndex] = this.playerId;
+                            this.states = states;
+                            this.playerId = (this.playerId == 1) ? 2 :1;
+                            let winnerId = this.winnerId();
+                            if(winnerId != -1){
+                                playerIds = {
+                                    1:'◯',
+                                    2:'x'
+                                };
+                                alert(playerIds[winnerId] + "さんの勝ちです");
+                                this.states = [
+                                    [-1,-1,-1],
+                                    [-1,-1,-1],
+                                    [-1,-1,-1]
+                                ];
+                                this.playerId = 1;
+                            }
+                        }
+                    },
+                    isStatesFilled(states){
+                        return(
+                            states[0] != -1 && states[0] == states[1] && states[1] == states[2]
+                        );
+                    },
+                    winnerId(){
+                        let skew1 = [
+                            this.states[0][0],
+                            this.states[1][1],
+                            this.states[2][2]
+                        ];
+                        if(this.isStatesFilled(skew1)){
+                            return this.states[0][0];
+                        }
+                        let skew2 = [
+                            this.states[0][2],
+                            this.states[1][1],
+                            this.states[2][0]
+                        ];
+                        if(this.states[0][2] == this.states[1][1] && this.states[0][2] == this.states[2][0]){
+                            return this.states[0][2];
+                        }
+                        for(let i = 0; i < 3;i++){
+                            let row = this.states[i];
+                            if(this.isStatesFilled(row)){
+                                return row[0];
+                            }
+                            let column = [
+                                this.states[0][i],
+                                this.states[1][i],
+                                this.states[2][i]
+                            ];
+                            if(this.isStatesFilled(column)){
+                                return this.states[0][i];
+                            }
+                        }
+                        return -1;
+                    }
+                },
+                computed:{
+                    
+                },
+            })
+        </script>
+        <style>
+            #app{
+                width: 500px;
+                margin:200px auto;
+            }
+            .maru,
+            .player1{
+                color:red;
+            }
+            .batsu,
+            .player2{
+                color:blue;
+            }
+            td{
+                width: 50px;
+                height: 50px;
+                text-align: center;
+            }
+        </style>
+    </body>
+</html>
